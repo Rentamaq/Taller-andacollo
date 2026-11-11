@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Entrevistas de Mantención</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg: #f3f5f8;
+    --card: #ffffff;
+    --text: #1d2430;
+    --muted: #5b6575;
+    --border: #d5dae2;
+    --accent: #e8731a;
+    --accent-dark: #c25e10;
+    --accent-soft: #fbeee3;
+    --danger: #c0392b;
+    --l0: #c0392b;
+    --l1: #e67e22;
+    --l2: #7cb342;
+    --l3: #1e8449;
+    --lnv: #95a5a6;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Segoe UI", Roboto, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.45;
+  }
+  header {
+    background: var(--text);
+    color: #fff;
+    padding: 16px 16px 0;
+    text-align: center;
+  }
+  header h1 { margin: 0; font-size: 1.3rem; }
+  header p { margin: 4px 0 12px; color: #c4cad4; font-size: .88rem; }
+  nav.tabs { display: flex; justify-content: center; gap: 4px; }
+  nav.tabs button {
+    background: transparent; color: #c4cad4; border: none;
+    padding: 10px 18px; font-size: .95rem; font-weight: 600; cursor: pointer;
+    border-radius: 8px 8px 0 0; font-family: inherit;
+  }
+  nav.tabs button.active { background: var(--bg); color: var(--text); }
+  nav.tabs .badge {
+    background: var(--accent); color: #fff; border-radius: 10px;
+    padding: 1px 8px; font-size: .78rem; margin-left: 4px;
+  }
+  main { max-width: 1100px; margin: 0 auto; padding: 20px 16px 60px; }
+  section.card, .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+  .card h2 {
+    margin: 0 0 16px; font-size: 1.1rem; padding-bottom: 8px;
+    border-bottom: 3px solid var(--accent); display: inline-block;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 14px 18px;
+  }
+  .full { grid-column: 1 / -1; }
+  label.f { display: block; font-weight: 600; font-size: .88rem; margin-bottom: 5px; }
+  .req { color: var(--danger); }
+  input, select, textarea {
+    width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: 6px;
+    font-size: .93rem; font-family: inherit; background: #fff; color: var(--text);
+  }
+  textarea { resize: vertical; min-height: 56px; }
+  input[readonly] { background: #eef0f3; color: var(--text); font-weight: 700; cursor: not-allowed; }
+  input:focus, select:focus, textarea:focus {
+    outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(232,115,26,.18);
+  }
+  .invalid { border-color: var(--danger) !important; background: #fdf2f1; }
+  .pair { display: flex; gap: 8px; }
+  .pair > * { flex: 1; }
+  .pair small { display: block; color: var(--muted); font-size: .76rem; margin-top: 3px; }
+
+  /* Barra fija del formulario */
+  .sticky {
+    position: sticky; top: 0; z-index: 20;
+    background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+    padding: 10px 14px; margin-bottom: 20px;
+    display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+    box-shadow: 0 2px 8px rgba(0,0,0,.06);
+  }
+  .sticky .who { font-weight: 700; }
+  .sticky .who small { font-weight: 400; color: var(--muted); }
+  .progress { flex: 1; min-width: 160px; }
+  .progress .bar { height: 8px; background: #e6e9ee; border-radius: 4px; overflow: hidden; }
+  .progress .bar div { height: 100%; background: var(--accent); width: 0; transition: width .2s; }
+  .progress small { color: var(--muted); font-size: .8rem; }
+
+  /* Evidencias */
+  .evid-block { border: 1px dashed var(--border); border-radius: 8px; padding: 14px; margin-bottom: 14px; }
+  .evid-block:last-child { margin-bottom: 0; }
+  .evid-head { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+  .evid-head h3 { margin: 0; font-size: 1rem; }
+  .evid-head span { color: var(--muted); font-size: .82rem; }
+  .upload-btn {
+    display: inline-block; background: var(--accent); color: #fff; padding: 8px 14px;
+    border-radius: 6px; cursor: pointer; font-weight: 600; font-size: .86rem;
+  }
+  .upload-btn:hover { background: var(--accent-dark); }
+  .upload-btn input { display: none; }
+  .previews { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; margin-top: 12px; }
+  .previews:empty::before { content: "Sin fotografías adjuntas"; color: var(--muted); font-size: .85rem; grid-column: 1 / -1; }
+  .thumb { position: relative; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; aspect-ratio: 1; background: #eef0f3; }
+  .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .thumb button {
+    position: absolute; top: 4px; right: 4px; width: 24px; height: 24px; border: none; border-radius: 50%;
+    background: rgba(0,0,0,.65); color: #fff; cursor: pointer; font-size: 14px; line-height: 1;
+  }
+
+  /* Escala */
+  table.escala { width: 100%; border-collapse: collapse; font-size: .88rem; }
+  table.escala th { background: var(--accent); color: #fff; text-align: left; padding: 8px 12px; }
+  table.escala td { padding: 7px 12px; border-bottom: 1px solid #eee; }
+  table.escala tr:nth-child(even) td { background: var(--accent-soft); }
+  .note {
+    background: #fff8e6; border-left: 4px solid #e6a700; padding: 10px 14px; border-radius: 6px;
+    font-size: .88rem; margin-top: 14px;
+  }
+
+  /* Preguntas */
+  .eje-intro { color: var(--muted); font-size: .92rem; margin: -6px 0 16px; }
+  details.tema { border: 1px solid var(--border); border-radius: 8px; margin-bottom: 14px; background: #fff; }
+  details.tema > summary {
+    cursor: pointer; padding: 12px 14px; font-weight: 700; background: #f8f9fb; border-radius: 8px;
+    list-style: none; display: flex; justify-content: space-between; gap: 10px;
+  }
+  details.tema[open] > summary { border-bottom: 1px solid var(--border); border-radius: 8px 8px 0 0; }
+  details.tema > summary::-webkit-details-marker { display: none; }
+  details.tema > summary::before { content: "▸ "; color: var(--accent); }
+  details.tema[open] > summary::before { content: "▾ "; }
+  summary .cnt { font-weight: 400; color: var(--muted); font-size: .85rem; margin-left: auto; }
+  .tema-body { padding: 4px 14px 10px; }
+  .q { border-bottom: 1px solid #eceef2; padding: 14px 0; }
+  .q:last-child { border-bottom: none; }
+  .q-top { display: flex; gap: 12px; }
+  .q-num {
+    flex: 0 0 auto; width: 34px; height: 34px; border-radius: 50%; background: var(--text); color: #fff;
+    display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: .85rem;
+  }
+  .q-text { margin: 0; font-weight: 600; }
+  .q-ind { margin: 4px 0 0; font-size: .86rem; color: var(--muted); }
+  .q-ind b { color: var(--accent-dark); }
+  .q-resp { margin: 12px 0 0 46px; }
+  .q-resp label { display: block; font-size: .82rem; font-weight: 700; margin-bottom: 4px; }
+  .q-resp textarea { min-height: 80px; }
+  .q-cal { margin: 12px 0 0 46px; font-size: .82rem; font-weight: 700; color: var(--muted); }
+  .q-env { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 6px; margin-left: 46px; }
+  @media (max-width: 760px) { .q-env { grid-template-columns: 1fr; margin-left: 0; } .q-resp, .q-cal { margin-left: 0; } }
+  .env { border: 1px solid var(--border); border-radius: 8px; padding: 10px; background: #fbfbfc; }
+  .env.on { background: #fff; border-color: #b9c0cb; }
+  .env-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+  .env-name { font-weight: 700; font-size: .88rem; text-transform: uppercase; letter-spacing: .03em; }
+  .env[data-env="t"] .env-name { color: #2c5d8f; }
+  .env[data-env="f"] .env-name { color: #8a4b0f; }
+  .lvls { display: flex; gap: 4px; align-items: center; }
+  .lvl input { display: none; }
+  .lvl span {
+    display: inline-block; min-width: 34px; text-align: center; padding: 4px 6px; border-radius: 5px;
+    border: 1px solid var(--border); font-size: .82rem; font-weight: 700; cursor: pointer; background: #fff; color: var(--muted);
+  }
+  .lvl input:checked + span { color: #fff; }
+  .lvl.l0 input:checked + span { background: var(--l0); border-color: var(--l0); }
+  .lvl.l1 input:checked + span { background: var(--l1); border-color: var(--l1); }
+  .lvl.l2 input:checked + span { background: var(--l2); border-color: var(--l2); }
+  .lvl.l3 input:checked + span { background: var(--l3); border-color: var(--l3); }
+  .lvl.lNV input:checked + span { background: var(--lnv); border-color: var(--lnv); }
+  .clr { border: none; background: none; color: var(--muted); cursor: pointer; font-size: 1rem; padding: 0 4px; }
+  .env-body { display: none; margin-top: 10px; }
+  .env.on .env-body { display: grid; gap: 8px; }
+  .env-body label { font-size: .78rem; font-weight: 600; color: var(--muted); display: block; margin-bottom: 2px; }
+  .env-hint { font-size: .78rem; color: var(--muted); margin-top: 6px; }
+  .env.on .env-hint { display: none; }
+
+  /* Botones */
+  .actions { display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; }
+  .btn {
+    padding: 9px 16px; border-radius: 6px; font-size: .9rem; font-weight: 600; font-family: inherit;
+    cursor: pointer; border: 1px solid var(--border); background: #fff; color: var(--text);
+  }
+  .btn:hover { background: #f2f4f7; }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn.primary:hover { background: var(--accent-dark); }
+  .btn.sm { padding: 5px 10px; font-size: .8rem; }
+  .btn.danger { color: var(--danger); }
+
+  /* Seguimiento */
+  .toolbar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; margin-bottom: 20px; }
+  .kpi { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; }
+  .kpi small { color: var(--muted); font-size: .8rem; font-weight: 600; text-transform: uppercase; letter-spacing: .03em; }
+  .kpi div { font-size: 1.7rem; font-weight: 700; margin-top: 2px; }
+  .kpi span { font-size: .82rem; color: var(--muted); }
+  .tbl-wrap { overflow-x: auto; }
+  table.data { width: 100%; border-collapse: collapse; font-size: .88rem; }
+  table.data th { text-align: left; background: #f3f5f8; padding: 8px 10px; border-bottom: 2px solid var(--border); white-space: nowrap; }
+  table.data td { padding: 8px 10px; border-bottom: 1px solid #eceef2; vertical-align: top; }
+  table.data td.acc { white-space: nowrap; }
+  .chip { display: inline-block; padding: 2px 9px; border-radius: 12px; font-size: .8rem; font-weight: 600; color: #fff; white-space: nowrap; }
+  .chip.l0 { background: var(--l0); } .chip.l1 { background: var(--l1); }
+  .chip.l2 { background: var(--l2); } .chip.l3 { background: var(--l3); }
+  .chip.lNV, .chip.nd { background: #e6e9ee; color: var(--muted); }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  @media (max-width: 900px) { .grid2 { grid-template-columns: 1fr; } }
+  .grid2 .card { margin-bottom: 0; }
+  .chart-box { position: relative; height: 380px; }
+  .seg { display: inline-flex; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; margin-bottom: 10px; }
+  .seg button { border: none; background: #fff; padding: 6px 14px; font-weight: 600; cursor: pointer; font-family: inherit; }
+  .seg button.active { background: var(--text); color: #fff; }
+  .empty { color: var(--muted); text-align: center; padding: 24px; }
+  .card-head { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 8px; }
+  #toast {
+    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+    background: var(--text); color: #fff; padding: 10px 18px; border-radius: 8px;
+    font-weight: 600; opacity: 0; transition: opacity .25s; pointer-events: none; z-index: 50;
+  }
+  #toast.show { opacity: 1; }
+  #toast.err { background: var(--danger); }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Entrevistas de Seguridad – Equipo de Mantención</h1>
+  <p>Entrevista individual · Resultados separados por entorno: Taller / Faena</p>
+  <nav class="tabs">
+    <button type="button" data-tab="form" class="active">Entrevista</button>
+    <button type="button" data-tab="seg">Seguimiento <span class="badge" id="badge">0</span></button>
+  </nav>
+</header>
+
+<main>
+
+<!-- ====================== PESTAÑA ENTREVISTA ====================== -->
+<div id="tab-form">
+<form id="formulario" novalidate autocomplete="off">
+
+  <div class="sticky">
+    <div class="who" id="who">Nueva entrevista</div>
+    <div class="progress">
+      <div class="bar"><div id="progBar"></div></div>
+      <small id="progTxt">0 de 43 preguntas evaluadas</small>
+    </div>
+    <button type="button" class="btn" id="btnNueva">Nueva</button>
+    <button type="submit" class="btn primary">Guardar entrevista</button>
+  </div>
+
+  <!-- PARTE 1: DATOS -->
+  <section class="card">
+    <h2>Datos del trabajador</h2>
+    <div class="grid">
+      <div>
+        <label class="f" for="codigo">Código de entrevista 🔒</label>
+        <input type="text" id="codigo" name="codigo" readonly tabindex="-1" title="Se genera automáticamente y no se puede modificar">
+        <small style="color:var(--muted);font-size:.76rem">Generado automáticamente</small>
+      </div>
+      <div class="full" style="grid-column: span 2">
+        <label class="f" for="nombre">Nombre trabajador <span class="req">*</span></label>
+        <input type="text" id="nombre" name="nombre" required placeholder="Nombre y apellidos">
+      </div>
+      <div>
+        <label class="f" for="edad">Edad <span class="req">*</span></label>
+        <input type="number" id="edad" name="edad" min="18" max="80" required placeholder="Años">
+      </div>
+      <div>
+        <label class="f" for="fecha">Fecha <span class="req">*</span></label>
+        <input type="date" id="fecha" name="fecha" required>
+      </div>
+      <div>
+        <label class="f" for="cargo">Cargo <span class="req">*</span></label>
+        <input type="text" id="cargo" name="cargo" required placeholder="Ej: Mecánico">
+      </div>
+      <div>
+        <label class="f" for="especialidad">Especialidad <span class="req">*</span></label>
+        <input type="text" id="especialidad" name="especialidad" required placeholder="Ej: Equipos pesados">
+      </div>
+      <div>
+        <label class="f">Antigüedad en la empresa <span class="req">*</span></label>
+        <div class="pair">
+          <div><input type="number" name="antEmpA" min="0" required placeholder="0"><small>Años</small></div>
+          <div><input type="number" name="antEmpM" min="0" max="11" placeholder="0"><small>Meses</small></div>
+        </div>
+      </div>
+      <div>
+        <label class="f">Antigüedad en el cargo <span class="req">*</span></label>
+        <div class="pair">
+          <div><input type="number" name="antCarA" min="0" required placeholder="0"><small>Años</small></div>
+          <div><input type="number" name="antCarM" min="0" max="11" placeholder="0"><small>Meses</small></div>
+        </div>
+      </div>
+      <div>
+        <label class="f" for="turno">Turno <span class="req">*</span></label>
+        <select id="turno" name="turno" required>
+          <option value="">Seleccione…</option>
+          <option>Día</option>
+          <option>Noche</option>
+          <option>Mixto / Rotativo</option>
+        </select>
+      </div>
+      <div>
+        <label class="f" for="tipoTurno">Tipo de turno <span class="req">*</span></label>
+        <select id="tipoTurno" name="tipoTurno" required>
+          <option value="">Seleccione…</option>
+          <option>5x2</option>
+          <option>4x3</option>
+          <option>4x4</option>
+          <option>7x7</option>
+          <option>10x10</option>
+          <option>14x14</option>
+          <option>Otro</option>
+        </select>
+      </div>
+      <div>
+        <label class="f" for="ambito">Ámbito habitual de trabajo <span class="req">*</span></label>
+        <select id="ambito" name="ambito" required>
+          <option value="">Seleccione…</option>
+          <option>Taller</option>
+          <option>Faena</option>
+          <option>Taller y faena</option>
+        </select>
+      </div>
+      <div>
+        <label class="f">Tiempo aprox. de exposición en faena <span class="req">*</span></label>
+        <div class="pair">
+          <input type="number" name="expoValor" min="0" step="any" required placeholder="0">
+          <select name="expoUnidad">
+            <option>horas por semana</option>
+            <option>días por semana</option>
+            <option>días por mes</option>
+            <option>% de la jornada</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- EVIDENCIAS -->
+  <section class="card">
+    <h2>Evidencias fotográficas</h2>
+    <div class="evid-block" data-cat="AST">
+      <div class="evid-head">
+        <div><h3>AST</h3><span>Análisis Seguro de Trabajo</span></div>
+        <label class="upload-btn">+ Adjuntar fotos<input type="file" accept="image/*" multiple></label>
+      </div>
+      <div class="previews"></div>
+    </div>
+    <div class="evid-block" data-cat="HCR">
+      <div class="evid-head">
+        <div><h3>HCR</h3><span>Herramienta de Control de Riesgos</span></div>
+        <label class="upload-btn">+ Adjuntar fotos<input type="file" accept="image/*" multiple></label>
+      </div>
+      <div class="previews"></div>
+    </div>
+    <div class="evid-block" data-cat="OTROS">
+      <div class="evid-head">
+        <div><h3>OTROS</h3><span>Otras evidencias</span></div>
+        <label class="upload-btn">+ Adjuntar fotos<input type="file" accept="image/*" multiple></label>
+      </div>
+      <div class="previews"></div>
+    </div>
+  </section>
+
+  <!-- ESCALA -->
+  <section class="card">
+    <h2>Escala de evaluación</h2>
+    <table class="escala" id="tablaEscala"></table>
+    <div class="note">
+      Escriba la respuesta del trabajador en el cuadro de texto de cada pregunta. Debajo, califique por separado
+      <b>Taller</b> y <b>Faena</b>: una brecha identificada en un entorno no se traslada automáticamente al otro, así que
+      deje en blanco el entorno que no se conversó. Al elegir un nivel se abren los campos de <b>condición observada</b> y <b>evidencia a verificar</b>.
+    </div>
+  </section>
+
+  <!-- PREGUNTAS -->
+  <div id="preguntas"></div>
+
+  <div class="actions">
+    <button type="button" class="btn" id="btnNueva2">Descartar y empezar nueva</button>
+    <button type="submit" class="btn primary">Guardar entrevista</button>
+  </div>
+</form>
+</div>
+
+<!-- ====================== PESTAÑA SEGUIMIENTO ====================== -->
+<div id="tab-seg" hidden>
+  <div class="toolbar">
+    <button type="button" class="btn primary" id="btnInforme">Descargar informe consolidado</button>
+    <button type="button" class="btn" id="btnCSV">Exportar a Excel (CSV)</button>
+    <button type="button" class="btn" id="btnBackup">Respaldar datos</button>
+    <label class="btn" style="cursor:pointer">Restaurar respaldo<input type="file" id="fileRestore" accept=".json,application/json" hidden></label>
+  </div>
+
+  <div class="kpis" id="kpis"></div>
+
+  <div class="card">
+    <h2>Entrevistados</h2>
+    <div class="tbl-wrap"><table class="data" id="tblEntrevistados"></table></div>
+  </div>
+
+  <div class="grid2" style="margin-bottom:20px">
+    <div class="card">
+      <h2>Tendencia de respuestas por dimensión</h2>
+      <div><div class="seg" id="segEnv"><button type="button" data-env="t" class="active">Taller</button><button type="button" data-env="f">Faena</button></div></div>
+      <div class="chart-box"><canvas id="ch1"></canvas></div>
+    </div>
+    <div class="card">
+      <h2>Criticidades por dimensión</h2>
+      <p style="margin:0 0 10px;color:var(--muted);font-size:.85rem">Respuestas en nivel 0 (Brecha grave) y 1 (Débil), Taller y Faena por separado.</p>
+      <div class="chart-box"><canvas id="ch2"></canvas></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Hallazgos críticos (nivel 0 – Brecha grave)</h2>
+    <div class="tbl-wrap"><table class="data" id="tblCriticos"></table></div>
+  </div>
+</div>
+
+</main>
+<div id="toast"></div>
+
+<script>
+/* ================= DATOS FIJOS ================= */
+const ESCALA = [
+  ['0', '0 — Brecha grave', 'No existe control conocido/efectivo o se observa exposición crítica.'],
+  ['1', '1 — Débil', 'Existe instrucción, documento o intención, pero su aplicación es incompleta o no verificable.'],
+  ['2', '2 — Aplicado', 'Control demostrado para la tarea revisada, con oportunidades puntuales de mejora.'],
+  ['3', '3 — Consistente', 'Control comprendido, observado, trazable y sostenido en situaciones similares.'],
+  ['NV', 'N/V', 'No verificado: no hubo observación o evidencia suficiente. No implica cumplimiento ni incumplimiento.']
+];
+const NIVEL_NOMBRE = { '0': 'Brecha grave', '1': 'Débil', '2': 'Aplicado', '3': 'Consistente', 'NV': 'N/V' };
+const NIVEL_COLOR = { '0': '#c0392b', '1': '#e67e22', '2': '#7cb342', '3': '#1e8449', 'NV': '#95a5a6' };
+const ENTORNOS = { t: 'Taller', f: 'Faena' };
+
+const EJES = [
+  {
+    titulo: '1. Eje I: condiciones, herramientas y apoyo para trabajar con seguridad',
+    intro: 'Las siguientes preguntas buscan que el mecánico describa tareas reales y dificultades concretas. Es preferible pedir un ejemplo reciente antes que aceptar respuestas cerradas como “sí”, “no” o “siempre”.',
+    temas: [
+      { id: '1.1', titulo: '1.1 Trabajo habitual y condiciones de ejecución', corto: '1.1 Trabajo habitual', preguntas: [
+        ['01', '¿Cuáles son los trabajos que realiza con mayor frecuencia y cuáles considera más difíciles o riesgosos?', 'Diferenciar taller, reparación en ruta y mantención dentro de la faena.'],
+        ['02', 'Cuénteme la última reparación que realizó dentro de la faena: ¿cómo recibió la solicitud y quién organizó el trabajo?', 'Pedir secuencia desde la asignación hasta liberar el equipo.'],
+        ['03', '¿Qué cambia cuando trabaja en el taller respecto de hacerlo dentro de las instalaciones del mandante?', 'Accesos, información del área, terreno, autorizaciones, herramientas, compañía.'],
+        ['04', '¿Qué situaciones imprevistas aparecen normalmente durante una reparación?', 'Fallas distintas a las previstas, trabajos adicionales, terceros, equipos en movimiento.']
+      ]},
+      { id: '1.2', titulo: '1.2 Recursos, herramientas y medios', corto: '1.2 Recursos y herramientas', preguntas: [
+        ['05', '¿Qué herramienta, equipo de apoyo o material le falta hoy para trabajar de manera segura y eficiente?', 'Precisar herramienta, tarea, frecuencia y consecuencia de no disponer de ella.'],
+        ['06', '¿Cuenta con herramientas especiales, elementos de torque o medición y equipos de apoyo adecuados y en condición verificable?', 'Calibración cuando corresponda, gatos, torres, eslingas, grilletes, soportes.'],
+        ['07', '¿Le ha tocado improvisar una solución o utilizar una herramienta alternativa para poder terminar un trabajo?', 'Registrar el motivo; no solicitar detalles que expongan al trabajador a represalias.'],
+        ['08', '¿Los repuestos y materiales necesarios están disponibles antes de iniciar las mantenciones?', 'Impacto de faltantes en desmontaje, armado provisorio o postergación.'],
+        ['09', '¿Los sectores de trabajo cuentan con iluminación, orden, limpieza, acceso y espacio de maniobra suficientes?', 'Comparar taller, exterior y condiciones nocturnas.'],
+        ['10', '¿Dispone del apoyo necesario para componentes pesados o maniobras que no deberían ejecutarse de forma individual?', 'Dotación, equipos de levante, señalero, especialidad de apoyo.']
+      ]},
+      { id: '1.3', titulo: '1.3 Procedimientos, planificación y apoyo', corto: '1.3 Procedimientos', preguntas: [
+        ['11', '¿Sabe dónde consultar los procedimientos de trabajo y cuál es la versión que debe utilizar?', 'Pedir que muestre el procedimiento de una tarea que ejecute.'],
+        ['12', '¿Los procedimientos explican cómo se hacen realmente los trabajos o hay pasos que no se pueden cumplir en la práctica?', 'Diferenciar procedimiento desactualizado de brecha en ejecución.'],
+        ['13', 'Cuando tiene dudas técnicas o de seguridad, ¿quién lo ayuda y cuánto tarda en recibir respuesta?', 'Soporte de supervisión, especialistas y fabricante cuando aplique.'],
+        ['14', '¿Antes de asignarle un trabajo se revisan las herramientas, repuestos, personal, permisos y condiciones del lugar?', 'Identificar la calidad de la planificación previa.'],
+        ['15', '¿En qué circunstancias siente presión por terminar una reparación o devolver rápidamente un equipo a operación?', 'Cómo se resuelven conflictos entre seguridad y disponibilidad.'],
+        ['16', 'Cuando una reparación cambia o aparece una condición no prevista, ¿qué debe hacer y a quién se lo comunica?', 'Replanificación, nueva evaluación y detención cuando sea necesario.'],
+        ['17', '¿Qué problema concreto solucionaría primero para mejorar la seguridad del equipo de mantención?', 'Pedir una propuesta implementable y quién podría ayudar.']
+      ]}
+    ]
+  },
+  {
+    titulo: '2. Eje II: identificación de peligros, evaluación y controles',
+    intro: 'Este bloque es central. Se debe verificar si la persona comprende los peligros propios de la tarea y puede convertirlos en controles específicos. El objetivo no es examinar definiciones memorizadas, sino entender cómo identifica y gestiona una exposición real.',
+    temas: [
+      { id: '2.1', titulo: '2.1 Evaluación previa y reconocimiento de peligros', corto: '2.1 Evaluación previa', preguntas: [
+        ['18', 'Antes de comenzar una reparación, ¿cómo determina qué puede salir mal y qué podría lesionarlo?', 'Pedir secuencia concreta de evaluación del lugar y tarea.'],
+        ['19', 'Describa un trabajo reciente y señale tres fuentes de peligro, el incidente que podrían provocar y las medidas de control.', 'Comprobar distinción entre fuente, incidente potencial y consecuencia.'],
+        ['20', '¿Qué energías peligrosas podría encontrar al intervenir equipos detenidos?', 'Eléctrica, mecánica, hidráulica, neumática, gravitacional, térmica y acumulada.'],
+        ['21', '¿En qué situaciones podría quedar en una línea de fuego durante una reparación?', 'Objetos que caen, cargas suspendidas, componentes que se desplazan, chorros a presión.'],
+        ['22', '¿Cómo identifica peligros del entorno cuando trabaja dentro de la faena?', 'Tránsito, maniobras de terceros, pendientes, terreno, electricidad, químicos y áreas restringidas.'],
+        ['23', '¿Qué hace si el trabajo real resulta distinto al que se evaluó inicialmente?', 'Detención, comunicación, nueva HCR/AST/ART según estándar aplicable.'],
+        ['24', '¿Podría dar un ejemplo de un riesgo que no se haya identificado inicialmente, pero que usted detectó antes de ejecutar?', 'Determinar capacidad de anticipación y forma de escalamiento.']
+      ]},
+      { id: '5.2', titulo: '5.2 Permisos, HCR/AST/ART y participación efectiva', corto: '5.2 Permisos HCR/AST/ART', preguntas: [
+        ['25', '¿Quién desarrolla normalmente la HCR, AST o ART de la tarea y cómo participa usted?', 'Diferenciar elaboración conjunta, revisión real y firma administrativa.'],
+        ['26', '¿Cuándo se revisa y firma la evaluación de riesgos: antes de ir al lugar, al llegar o después de comenzar?', 'Verificar evaluación en el punto efectivo de trabajo.'],
+        ['27', '¿Alguien revisa con usted los peligros específicos del equipo y del área antes de autorizar el inicio?', 'Supervisor, encargado de área, prevención y responsables de terceros.'],
+        ['28', 'En los trabajos que requieren permiso, ¿quién lo gestiona, quién verifica sus condiciones y cuándo se libera?', 'No confundir permiso de trabajo con procedimiento de trabajo seguro (PTS).'],
+        ['29', '¿Ha ocurrido que se le pida firmar una evaluación ya elaborada sin revisar en conjunto la actividad?', 'Indagar frecuencia, condiciones y formas de corregir sin individualizar culpables.'],
+        ['30', '¿Qué sucede si usted encuentra un peligro que no está escrito en la evaluación o permiso?', 'Corrección documental, medidas adicionales, autoridad para detener.'],
+        ['31', '¿Existe alguna diferencia en la aplicación de estos documentos entre el taller y el interior de la faena?', 'Quién solicita, valida, ejecuta, supervisa y cierra.']
+      ]},
+      { id: '5.3', titulo: '5.3 Verificación de barreras críticas', corto: '5.3 Barreras críticas', preguntas: [
+        ['32', 'Explíqueme cómo deja un equipo inmovilizado, aislado y sin energías peligrosas antes de intervenirlo.', 'Bloqueo, etiquetas, energías residuales, prueba de energía cero según procedimiento.'],
+        ['33', '¿Cómo asegura un equipo o componente elevado antes de trabajar debajo o cerca de él?', 'Soporte mecánico positivo; no depender exclusivamente de gatos o hidráulica.'],
+        ['34', '¿Qué revisa antes de desconectar una línea hidráulica, neumática o de combustible?', 'Aislamiento, despresurización, temperatura y liberación accidental.'],
+        ['35', '¿Cómo define el área de exclusión y los medios de izaje al retirar un componente pesado?', 'Plan de izaje cuando aplique, capacidad certificada, puntos de toma, señalero.'],
+        ['36', '¿Qué debe comprobar antes de realizar trabajos en caliente, corte, soldadura o esmerilado?', 'Materiales combustibles, pantallas, extintor, autorización y ventilación.'],
+        ['37', 'Cuando necesita hacer una prueba funcional con un equipo intervenido, ¿cómo evita exponer a otros trabajadores?', 'Roles, comunicación, despeje, retiro controlado de bloqueos y liberación.'],
+        ['38', '¿Qué hace si la intervención requiere una tarea o herramienta para la que no está autorizado o capacitado?', 'Límites de competencia, escalamiento y apoyo especializado.'],
+        ['39', '¿Cuándo fue la última vez que detuvo o solicitó detener un trabajo por seguridad? ¿Qué respuesta recibió?', 'Comprobar ejercicio real de autoridad para detener.']
+      ]},
+      { id: '2.4', titulo: '2.4 Coordinación dentro de faena', corto: '2.4 Coordinación en faena', preguntas: [
+        ['40', 'Al ingresar a reparar un equipo dentro de Teck, ¿quién entrega el equipo y quién informa los riesgos específicos del sector?', 'Responsable del área, operación del equipo, cambios operacionales.'],
+        ['41', 'Si trabajan otras empresas cerca, ¿cómo se coordinan las actividades simultáneas y las zonas de exclusión?', 'Interferencias con tránsito, carguío, izaje, electricidad y servicios.'],
+        ['42', '¿Qué ocurre cuando el supervisor de Renta Maq y el área usuaria entregan indicaciones diferentes?', 'Mecanismo de resolución y autorización final.'],
+        ['43', '¿Cómo se informan y aprovechan las lecciones aprendidas de incidentes recientes?', 'Recuerdo de controles, aplicación efectiva y retroalimentación.']
+      ]}
+    ]
+  }
+];
+const TEMAS = EJES.flatMap(e => e.temas);
+const PREGS = TEMAS.flatMap(t => t.preguntas.map(([id, texto, indagar]) => ({ id, texto, indagar, tema: t.id })));
+const TOTAL = PREGS.length;
+
+/* ================= UTILIDADES ================= */
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const fmt = n => n == null ? '—' : n.toLocaleString('es-CL', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+const fFecha = d => d ? d.split('-').reverse().join('-') : '';
+const hoyISO = () => { const d = new Date(); return new Date(d - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10); };
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+const nivelDeProm = p => p == null ? null : p < 0.5 ? '0' : p < 1.5 ? '1' : p < 2.5 ? '2' : '3';
+function toast(msg, err) {
+  const t = $('#toast'); t.textContent = msg; t.className = 'show' + (err ? ' err' : '');
+  clearTimeout(t._h); t._h = setTimeout(() => t.className = '', 2600);
+}
+function chip(prom) {
+  const l = nivelDeProm(prom);
+  return l == null ? '<span class="chip nd">Sin evaluar</span>' : `<span class="chip l${l}">${fmt(prom)} · ${NIVEL_NOMBRE[l]}</span>`;
+}
+function descargar(nombre, contenido, tipo) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([contenido], { type: tipo }));
+  a.download = nombre; document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+}
+
+/* ================= ALMACENAMIENTO (IndexedDB, solo este equipo) ================= */
+const DB = {
+  db: null, mem: new Map(),
+  async init() {
+    try {
+      this.db = await new Promise((res, rej) => {
+        const r = indexedDB.open('entrevistas_mantencion', 1);
+        r.onupgradeneeded = () => r.result.createObjectStore('registros', { keyPath: 'id' });
+        r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
+      });
+    } catch (e) {
+      this.db = null;
+      toast('El navegador no permite guardar datos: use "Respaldar datos" antes de cerrar.', true);
+    }
+  },
+  req(mode, fn) {
+    return new Promise((res, rej) => {
+      const st = this.db.transaction('registros', mode).objectStore('registros');
+      const r = fn(st); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
+    });
+  },
+  async all() { return this.db ? this.req('readonly', s => s.getAll()) : [...this.mem.values()]; },
+  async put(x) { return this.db ? this.req('readwrite', s => s.put(x)) : this.mem.set(x.id, x); },
+  async del(id) { return this.db ? this.req('readwrite', s => s.delete(id)) : this.mem.delete(id); }
+};
+let registros = [];
+
+/* ================= CONSTRUIR FORMULARIO ================= */
+$('#tablaEscala').innerHTML = '<tr><th style="width:190px">Nivel</th><th>Definición de evidencia</th></tr>' +
+  ESCALA.map(([, n, d]) => `<tr><td>${esc(n)}</td><td>${esc(d)}</td></tr>`).join('');
+
+function htmlEnv(qid, e) {
+  const lv = ['0', '1', '2', '3', 'NV'].map(v =>
+    `<label class="lvl l${v}" title="${esc(NIVEL_NOMBRE[v])}"><input type="radio" name="${qid}_${e}" value="${v}"><span>${v === 'NV' ? 'N/V' : v}</span></label>`).join('');
+  return `<div class="env" data-env="${e}">
+    <div class="env-head"><span class="env-name">${ENTORNOS[e]}</span>
+      <div class="lvls">${lv}<button type="button" class="clr" title="Quitar evaluación">×</button></div></div>
+    <div class="env-hint">Elija un nivel si se conversó este entorno.</div>
+    <div class="env-body">
+      <div><label>Condición observada</label><textarea name="${qid}_${e}_cond" rows="2"></textarea></div>
+      <div><label>Evidencia a verificar</label><textarea name="${qid}_${e}_evid" rows="1"></textarea></div>
+    </div></div>`;
+}
+$('#preguntas').innerHTML = EJES.map(eje => `
+  <section class="card">
+    <h2>${esc(eje.titulo)}</h2>
+    <p class="eje-intro">${esc(eje.intro)}</p>
+    ${eje.temas.map(t => `
+      <details class="tema" open data-tema="${t.id}">
+        <summary>${esc(t.titulo)}<span class="cnt" data-cnt="${t.id}"></span></summary>
+        <div class="tema-body">
+          ${t.preguntas.map(([id, texto, ind]) => `
+            <div class="q" data-q="${id}">
+              <div class="q-top"><span class="q-num">${id}</span>
+                <div><p class="q-text">${esc(texto)}</p><p class="q-ind"><b>Indagar:</b> ${esc(ind)}</p></div></div>
+              <div class="q-resp">
+                <label for="r_${id}">Respuesta del trabajador</label>
+                <textarea id="r_${id}" name="${id}_txt" rows="3" placeholder="Escriba aquí la respuesta, incluyendo ejemplos concretos…"></textarea>
+              </div>
+              <div class="q-cal">Calificación</div>
+              <div class="q-env">${htmlEnv(id, 't')}${htmlEnv(id, 'f')}</div>
+            </div>`).join('')}
+        </div>
+      </details>`).join('')}
+  </section>`).join('');
+
+const form = $('#formulario');
+let editId = null, dirty = false;
+const evidencias = { AST: [], HCR: [], OTROS: [] };
+
+function refreshEnv(env) {
+  const on = !!env.querySelector('input[type=radio]:checked') || [...env.querySelectorAll('textarea')].some(t => t.value.trim());
+  env.classList.toggle('on', on);
+}
+function actualizarProgreso() {
+  let total = 0;
+  TEMAS.forEach(t => {
+    let c = 0;
+    t.preguntas.forEach(([id]) => {
+      if (form.elements[`${id}_txt`].value.trim() || form.querySelector(`input[name="${id}_t"]:checked, input[name="${id}_f"]:checked`)) c++;
+    });
+    total += c;
+    $(`[data-cnt="${t.id}"]`).textContent = `${c}/${t.preguntas.length}`;
+  });
+  $('#progBar').style.width = (total / TOTAL * 100) + '%';
+  $('#progTxt').textContent = `${total} de ${TOTAL} preguntas respondidas`;
+}
+form.addEventListener('change', e => {
+  dirty = true;
+  const env = e.target.closest('.env');
+  if (env) refreshEnv(env);
+  if (e.target.type === 'radio') actualizarProgreso();
+  if (e.target.classList.contains('invalid') && e.target.value.trim()) e.target.classList.remove('invalid');
+});
+form.addEventListener('input', e => {
+  dirty = true;
+  if (['nombre', 'codigo'].includes(e.target.name)) actualizarWho();
+  if (/_txt$/.test(e.target.name)) actualizarProgreso();
+});
+form.addEventListener('click', e => {
+  if (!e.target.classList.contains('clr')) return;
+  const env = e.target.closest('.env');
+  env.querySelectorAll('input[type=radio]').forEach(r => r.checked = false);
+  dirty = true; refreshEnv(env); actualizarProgreso();
+});
+function actualizarWho() {
+  const c = form.codigo.value.trim(), nm = form.nombre.value.trim();
+  $('#who').innerHTML = (editId ? 'Editando: ' : 'Nueva entrevista: ') + esc(c || '—') + (nm ? ` <small>· ${esc(nm)}</small>` : '');
+}
+
+/* ---- Evidencias fotográficas (se comprimen para ahorrar espacio) ---- */
+function comprimir(file) {
+  return new Promise(res => {
+    const fr = new FileReader();
+    fr.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        const k = Math.min(1, 1600 / Math.max(img.width, img.height));
+        const c = document.createElement('canvas');
+        c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+        res({ name: file.name, data: c.toDataURL('image/jpeg', 0.8) });
+      };
+      img.onerror = () => res(null);
+      img.src = fr.result;
+    };
+    fr.onerror = () => res(null);
+    fr.readAsDataURL(file);
+  });
+}
+function renderFotos() {
+  $$('.evid-block').forEach(block => {
+    const cat = block.dataset.cat, prev = block.querySelector('.previews');
+    prev.innerHTML = '';
+    evidencias[cat].forEach((f, i) => {
+      const d = document.createElement('div'); d.className = 'thumb';
+      d.innerHTML = `<img src="${f.data}" alt="${esc(f.name)}" title="${esc(f.name)}"><button type="button" title="Quitar">×</button>`;
+      d.querySelector('button').onclick = () => { evidencias[cat].splice(i, 1); dirty = true; renderFotos(); };
+      prev.appendChild(d);
+    });
+  });
+}
+$$('.evid-block input[type=file]').forEach(inp => inp.addEventListener('change', async () => {
+  const cat = inp.closest('.evid-block').dataset.cat;
+  const files = [...inp.files]; inp.value = '';
+  const res = (await Promise.all(files.map(comprimir))).filter(Boolean);
+  evidencias[cat].push(...res); dirty = true; renderFotos();
+}));
+
+/* ---- Leer / cargar formulario ---- */
+const CAMPOS = ['codigo', 'nombre', 'edad', 'fecha', 'cargo', 'especialidad', 'antEmpA', 'antEmpM', 'antCarA', 'antCarM', 'turno', 'tipoTurno', 'ambito', 'expoValor', 'expoUnidad'];
+function leerForm() {
+  const r = { id: editId || uid(), resp: {}, fotos: JSON.parse(JSON.stringify(evidencias)) };
+  CAMPOS.forEach(c => r[c] = form.elements[c].value.trim());
+  PREGS.forEach(({ id }) => {
+    const o = {};
+    const txt = form.elements[`${id}_txt`].value.trim();
+    if (txt) o.txt = txt;
+    ['t', 'f'].forEach(e => {
+      const nivel = (form.querySelector(`input[name="${id}_${e}"]:checked`) || {}).value || '';
+      const cond = form.elements[`${id}_${e}_cond`].value.trim();
+      const evid = form.elements[`${id}_${e}_evid`].value.trim();
+      if (nivel || cond || evid) o[e] = { nivel, cond, evid };
+    });
+    if (Object.keys(o).length) r.resp[id] = o;
+  });
+  return r;
+}
+// Correlativo: nunca reutiliza un número, aunque se elimine una entrevista
+function ultimoUsado() {
+  let max = 0;
+  try { max = +localStorage.getItem('ultimoCodigoEntrevista') || 0; } catch { }
+  registros.forEach(r => { const m = /(\d+)\s*$/.exec(r.codigo || ''); if (m) max = Math.max(max, +m[1]); });
+  return max;
+}
+function sugerirCodigo() { return 'ENT-' + String(ultimoUsado() + 1).padStart(3, '0'); }
+function registrarCodigo(c) {
+  const m = /(\d+)\s*$/.exec(c || '');
+  try { if (m) localStorage.setItem('ultimoCodigoEntrevista', String(Math.max(ultimoUsado(), +m[1]))); } catch { }
+}
+function limpiarForm() {
+  form.reset();
+  editId = null;
+  form.codigo.value = sugerirCodigo();
+  form.fecha.value = hoyISO();
+  Object.keys(evidencias).forEach(k => evidencias[k] = []);
+  renderFotos();
+  $$('.env').forEach(refreshEnv);
+  $$('.invalid').forEach(x => x.classList.remove('invalid'));
+  actualizarProgreso(); actualizarWho();
+  dirty = false;
+}
+function cargarForm(r) {
+  limpiarForm();
+  editId = r.id;
+  CAMPOS.forEach(c => { if (r[c] != null) form.elements[c].value = r[c]; });
+  PREGS.forEach(({ id }) => {
+    form.elements[`${id}_txt`].value = r.resp?.[id]?.txt || '';
+    ['t', 'f'].forEach(e => {
+      const x = r.resp?.[id]?.[e]; if (!x) return;
+      if (x.nivel) { const rb = form.querySelector(`input[name="${id}_${e}"][value="${x.nivel}"]`); if (rb) rb.checked = true; }
+      form.elements[`${id}_${e}_cond`].value = x.cond || '';
+      form.elements[`${id}_${e}_evid`].value = x.evid || '';
+    });
+  });
+  Object.keys(evidencias).forEach(k => evidencias[k] = (r.fotos?.[k] || []).slice());
+  renderFotos();
+  $$('.env').forEach(refreshEnv);
+  actualizarProgreso(); actualizarWho();
+  dirty = false;
+}
+
+form.addEventListener('submit', async e => {
+  e.preventDefault();
+  $$('.invalid').forEach(x => x.classList.remove('invalid'));
+  const faltan = [...form.querySelectorAll('[required]')].filter(el => !el.value.trim());
+  faltan.forEach(el => el.classList.add('invalid'));
+  if (faltan.length) { faltan[0].focus(); toast('Faltan datos obligatorios del trabajador.', true); return; }
+  const r = leerForm();
+  const previo = registros.find(x => x.id === r.id);
+  // El código es fijo: al editar se conserva el original; en una nueva se asigna el siguiente disponible
+  r.codigo = previo ? previo.codigo : sugerirCodigo();
+  r.creado = previo?.creado || new Date().toISOString();
+  r.actualizado = new Date().toISOString();
+  try { await DB.put(r); } catch (err) { toast('No se pudo guardar: ' + err.message, true); return; }
+  registrarCodigo(r.codigo);
+  registros = await DB.all();
+  toast(`Entrevista ${r.codigo} guardada`);
+  limpiarForm();
+  irTab('seg');
+});
+const nueva = () => { if (dirty && !confirm('Hay cambios sin guardar. ¿Descartarlos?')) return; limpiarForm(); window.scrollTo(0, 0); };
+$('#btnNueva').onclick = nueva; $('#btnNueva2').onclick = nueva;
+window.addEventListener('beforeunload', e => { if (dirty) { e.preventDefault(); e.returnValue = ''; } });
+
+/* ================= CÁLCULOS ================= */
+// Calcula estadística de un conjunto de registros, para un entorno y (opcional) un tema
+function calc(regs, e, temaId) {
+  const cnt = { '0': 0, '1': 0, '2': 0, '3': 0, 'NV': 0 };
+  let s = 0, n = 0, ev = 0;
+  regs.forEach(r => PREGS.forEach(p => {
+    if (temaId && p.tema !== temaId) return;
+    const v = r.resp?.[p.id]?.[e]?.nivel; if (!v) return;
+    ev++; cnt[v]++; if (v !== 'NV') { s += +v; n++; }
+  }));
+  return { prom: n ? s / n : null, n, ev, cnt, criticos: cnt['0'] };
+}
+function hallazgos(regs, niveles) {
+  const out = [];
+  regs.forEach(r => PREGS.forEach(p => ['t', 'f'].forEach(e => {
+    const x = r.resp?.[p.id]?.[e];
+    if (x && niveles.includes(x.nivel)) out.push({ r, p, e, x });
+  })));
+  return out;
+}
+const ordenados = () => registros.slice().sort((a, b) => (a.codigo || '').localeCompare(b.codigo || '', 'es', { numeric: true }));
+
+/* ================= GRÁFICOS ================= */
+const fondoBlanco = { id: 'bg', beforeDraw(ch) { const c = ch.ctx; c.save(); c.fillStyle = '#fff'; c.fillRect(0, 0, ch.width, ch.height); c.restore(); } };
+function cfgTendencia(e) {
+  const datos = TEMAS.map(t => calc(registros, e, t.id));
+  return {
+    type: 'bar',
+    data: {
+      labels: TEMAS.map(t => t.corto),
+      datasets: ['0', '1', '2', '3', 'NV'].map(v => ({
+        label: v === 'NV' ? 'N/V' : `${v} – ${NIVEL_NOMBRE[v]}`,
+        data: datos.map(d => d.ev ? +(d.cnt[v] / d.ev * 100).toFixed(1) : 0),
+        backgroundColor: NIVEL_COLOR[v], borderWidth: 0
+      }))
+    },
+    options: {
+      indexAxis: 'y', maintainAspectRatio: false,
+      plugins: {
+        title: { display: true, text: `${ENTORNOS[e]} – distribución de niveles (% de respuestas evaluadas)` },
+        legend: { position: 'bottom' },
+        tooltip: { callbacks: { label: c => `${c.dataset.label}: ${c.raw}%` } }
+      },
+      scales: { x: { stacked: true, max: 100, ticks: { callback: v => v + '%' } }, y: { stacked: true } }
+    },
+    plugins: [fondoBlanco]
+  };
+}
+function cfgCriticidad() {
+  const T = TEMAS.map(t => calc(registros, 't', t.id)), F = TEMAS.map(t => calc(registros, 'f', t.id));
+  return {
+    type: 'bar',
+    data: {
+      labels: TEMAS.map(t => t.corto),
+      datasets: [
+        { label: 'Taller · 0 Brecha grave', data: T.map(d => d.cnt['0']), backgroundColor: '#c0392b', stack: 'Taller' },
+        { label: 'Taller · 1 Débil', data: T.map(d => d.cnt['1']), backgroundColor: '#e67e22', stack: 'Taller' },
+        { label: 'Faena · 0 Brecha grave', data: F.map(d => d.cnt['0']), backgroundColor: '#7b241c', stack: 'Faena' },
+        { label: 'Faena · 1 Débil', data: F.map(d => d.cnt['1']), backgroundColor: '#f5b041', stack: 'Faena' }
+      ]
+    },
+    options: {
+      maintainAspectRatio: false,
+      plugins: { title: { display: true, text: 'Cantidad de respuestas críticas (barra izquierda: Taller · derecha: Faena)' }, legend: { position: 'bottom' } },
+      scales: { x: { stacked: true, ticks: { autoSkip: false, maxRotation: 45, minRotation: 30 } }, y: { stacked: true, beginAtZero: true, ticks: { precision: 0 } } }
+    },
+    plugins: [fondoBlanco]
+  };
+}
+let ch1 = null, ch2 = null, envGraf = 't';
+function renderGraficos() {
+  if (typeof Chart === 'undefined') {
+    $$('.chart-box').forEach(b => b.innerHTML = '<p class="empty">No se pudieron cargar los gráficos (requiere conexión a internet).</p>');
+    return;
+  }
+  ch1?.destroy(); ch2?.destroy();
+  ch1 = new Chart($('#ch1'), cfgTendencia(envGraf));
+  ch2 = new Chart($('#ch2'), cfgCriticidad());
+}
+function imagenGrafico(cfg, w = 1000, h = 440) {
+  if (typeof Chart === 'undefined') return '';
+  const c = document.createElement('canvas');
+  c.width = w; c.height = h; c.style.cssText = 'position:fixed;left:-10000px;top:0';
+  document.body.appendChild(c);
+  cfg.options = { ...cfg.options, responsive: false, animation: false, devicePixelRatio: 2 };
+  const ch = new Chart(c, cfg); const url = ch.toBase64Image();
+  ch.destroy(); c.remove();
+  return url;
+}
+$('#segEnv').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  envGraf = b.dataset.env;
+  $$('#segEnv button').forEach(x => x.classList.toggle('active', x === b));
+  renderGraficos();
+});
+
+/* ================= SEGUIMIENTO ================= */
+function renderSeguimiento() {
+  $('#badge').textContent = registros.length;
+  const T = calc(registros, 't'), F = calc(registros, 'f');
+  const crit = hallazgos(registros, ['0']);
+  $('#kpis').innerHTML = `
+    <div class="kpi"><small>Entrevistados</small><div>${registros.length}</div><span>de forma individual</span></div>
+    <div class="kpi"><small>Resultado Taller</small><div>${fmt(T.prom)}</div><span>${T.prom == null ? 'Sin evaluar' : NIVEL_NOMBRE[nivelDeProm(T.prom)]} · ${T.ev} respuestas</span></div>
+    <div class="kpi"><small>Resultado Faena</small><div>${fmt(F.prom)}</div><span>${F.prom == null ? 'Sin evaluar' : NIVEL_NOMBRE[nivelDeProm(F.prom)]} · ${F.ev} respuestas</span></div>
+    <div class="kpi"><small>Brechas graves</small><div style="color:var(--l0)">${crit.length}</div><span>Taller ${T.cnt['0']} · Faena ${F.cnt['0']}</span></div>`;
+
+  const tbl = $('#tblEntrevistados');
+  if (!registros.length) {
+    tbl.innerHTML = '<tr><td class="empty">Aún no hay entrevistas guardadas.</td></tr>';
+  } else {
+    tbl.innerHTML = `<tr><th>Código</th><th>Nombre</th><th>Cargo</th><th>Fecha</th><th>Ámbito habitual</th><th>Resultado Taller</th><th>Resultado Faena</th><th>Brechas graves</th><th>Avance</th><th></th></tr>` +
+      ordenados().map(r => {
+        const t = calc([r], 't'), f = calc([r], 'f');
+        const av = PREGS.filter(p => r.resp?.[p.id]?.txt || r.resp?.[p.id]?.t?.nivel || r.resp?.[p.id]?.f?.nivel).length;
+        return `<tr>
+          <td><b>${esc(r.codigo)}</b></td><td>${esc(r.nombre)}</td><td>${esc(r.cargo)}</td><td>${fFecha(r.fecha)}</td><td>${esc(r.ambito)}</td>
+          <td>${chip(t.prom)}</td><td>${chip(f.prom)}</td>
+          <td>${t.criticos + f.criticos ? `<span class="chip l0">${t.criticos + f.criticos}</span>` : '0'}</td>
+          <td>${av}/${TOTAL}</td>
+          <td class="acc"><button class="btn sm" data-act="edit" data-id="${r.id}">Editar</button>
+            <button class="btn sm" data-act="inf" data-id="${r.id}">Informe</button>
+            <button class="btn sm danger" data-act="del" data-id="${r.id}">Eliminar</button></td></tr>`;
+      }).join('');
+  }
+
+  const tc = $('#tblCriticos');
+  tc.innerHTML = crit.length
+    ? `<tr><th>Código</th><th>Nombre</th><th>Entorno</th><th>Pregunta</th><th>Condición observada</th><th>Evidencia a verificar</th></tr>` +
+      crit.map(({ r, p, e, x }) => `<tr><td>${esc(r.codigo)}</td><td>${esc(r.nombre)}</td><td>${ENTORNOS[e]}</td>
+        <td><b>${p.id}.</b> ${esc(p.texto)}</td><td>${esc(x.cond) || '—'}</td><td>${esc(x.evid) || '—'}</td></tr>`).join('')
+    : '<tr><td class="empty">Sin brechas graves registradas.</td></tr>';
+
+  renderGraficos();
+}
+$('#tblEntrevistados').addEventListener('click', async e => {
+  const b = e.target.closest('button[data-act]'); if (!b) return;
+  const r = registros.find(x => x.id === b.dataset.id); if (!r) return;
+  if (b.dataset.act === 'edit') {
+    if (dirty && !confirm('Hay cambios sin guardar en el formulario. ¿Descartarlos?')) return;
+    cargarForm(r); irTab('form'); window.scrollTo(0, 0);
+  } else if (b.dataset.act === 'inf') {
+    abrirInforme(informeIndividual(r), `Informe_${r.codigo}`);
+  } else if (b.dataset.act === 'del') {
+    if (!confirm(`¿Eliminar la entrevista ${r.codigo} – ${r.nombre}? Esta acción no se puede deshacer.`)) return;
+    await DB.del(r.id); registros = await DB.all();
+    if (editId === r.id) limpiarForm();
+    renderSeguimiento(); toast('Entrevista eliminada');
+  }
+});
+
+/* ================= INFORMES ================= */
+const CSS_INFORME = `
+  body{font-family:"Segoe UI",Arial,sans-serif;color:#1d2430;margin:0;padding:24px;font-size:12.5px;line-height:1.45}
+  .bar{position:sticky;top:0;background:#fff;padding:8px 0 12px;display:flex;gap:8px;border-bottom:1px solid #ddd;margin-bottom:16px}
+  .bar button{padding:8px 14px;border-radius:6px;border:1px solid #ccc;background:#fff;font-weight:600;cursor:pointer}
+  .bar button.p{background:#e8731a;border-color:#e8731a;color:#fff}
+  h1{font-size:20px;margin:0 0 4px} h2{font-size:15px;margin:22px 0 8px;padding-bottom:4px;border-bottom:3px solid #e8731a;display:inline-block}
+  h3{font-size:13.5px;margin:16px 0 6px} h4{font-size:12.5px;margin:10px 0 4px;text-transform:uppercase;letter-spacing:.03em}
+  .sub{color:#5b6575;margin:0 0 10px}
+  table{width:100%;border-collapse:collapse;margin:6px 0 12px}
+  th{background:#e8731a;color:#fff;text-align:left;padding:5px 7px;font-size:11.5px}
+  td{padding:5px 7px;border-bottom:1px solid #e3e6ea;vertical-align:top;white-space:pre-wrap}
+  tr{page-break-inside:avoid}
+  .chip{display:inline-block;padding:1px 8px;border-radius:10px;color:#fff;font-weight:600;font-size:11px;white-space:nowrap}
+  .l0{background:#c0392b}.l1{background:#e67e22}.l2{background:#7cb342}.l3{background:#1e8449}.lNV,.nd{background:#e6e9ee;color:#5b6575}
+  .kp{display:flex;gap:10px;flex-wrap:wrap}.kp div{border:1px solid #ddd;border-radius:8px;padding:8px 12px;min-width:140px}
+  .kp b{display:block;font-size:18px}
+  .note{background:#fff8e6;border-left:4px solid #e6a700;padding:8px 12px;margin:10px 0}
+  .t{color:#2c5d8f}.f{color:#8a4b0f}
+  img.g{width:100%;max-width:900px;display:block;margin:8px 0;page-break-inside:avoid}
+  .fotos{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.fotos img{width:100%;border:1px solid #ddd;border-radius:4px}
+  .muted{color:#7a8391}
+  @media print{.bar{display:none}body{padding:0}h2{page-break-after:avoid}}
+  @page{size:A4;margin:14mm}`;
+const chipI = prom => { const l = nivelDeProm(prom); return l == null ? '<span class="chip nd">Sin evaluar</span>' : `<span class="chip l${l}">${fmt(prom)} · ${NIVEL_NOMBRE[l]}</span>`; };
+const chipN = v => v ? `<span class="chip l${v}">${v === 'NV' ? 'N/V' : v + ' ' + NIVEL_NOMBRE[v]}</span>` : '<span class="chip nd">—</span>';
+const ahora = () => new Date().toLocaleString('es-CL', { dateStyle: 'short', timeStyle: 'short' });
+
+function htmlEscala() {
+  return `<table><tr><th style="width:150px">Nivel</th><th>Definición de evidencia</th></tr>${ESCALA.map(([, n, d]) => `<tr><td>${esc(n)}</td><td>${esc(d)}</td></tr>`).join('')}</table>`;
+}
+function htmlMadurez(regs) {
+  const fila = (t, e) => { const d = calc(regs, e, t.id); return `<td>${chipI(d.prom)}</td><td>${d.cnt['0']}</td><td>${d.cnt['1']}</td><td>${d.cnt['2']}</td><td>${d.cnt['3']}</td><td>${d.cnt.NV}</td>`; };
+  const hdr = '<th>Resultado</th><th>0</th><th>1</th><th>2</th><th>3</th><th>N/V</th>';
+  return `<table><tr><th rowspan="2">Dimensión</th><th colspan="6">Taller</th><th colspan="6">Faena</th></tr><tr>${hdr}${hdr}</tr>
+    ${TEMAS.map(t => `<tr><td>${esc(t.titulo)}</td>${fila(t, 't')}${fila(t, 'f')}</tr>`).join('')}
+    <tr><td><b>Total</b></td>${(() => { const a = calc(regs, 't'), b = calc(regs, 'f'); return [a, b].map(d => `<td>${chipI(d.prom)}</td><td>${d.cnt['0']}</td><td>${d.cnt['1']}</td><td>${d.cnt['2']}</td><td>${d.cnt['3']}</td><td>${d.cnt.NV}</td>`).join(''); })()}</tr></table>`;
+}
+function datosTrabajador(r) {
+  return `<table>
+    <tr><th>Código de entrevista</th><th>Nombre trabajador</th><th>Edad</th><th>Fecha</th><th>Cargo</th><th>Especialidad</th></tr>
+    <tr><td><b>${esc(r.codigo)}</b></td><td>${esc(r.nombre)}</td><td>${esc(r.edad)}</td><td>${fFecha(r.fecha)}</td><td>${esc(r.cargo)}</td><td>${esc(r.especialidad)}</td></tr>
+    <tr><th>Antigüedad empresa</th><th>Antigüedad cargo</th><th>Turno</th><th>Tipo de turno</th><th>Ámbito habitual</th><th>Exposición en faena</th></tr>
+    <tr><td>${esc(r.antEmpA || 0)} años ${esc(r.antEmpM || 0)} meses</td><td>${esc(r.antCarA || 0)} años ${esc(r.antCarM || 0)} meses</td>
+      <td>${esc(r.turno)}</td><td>${esc(r.tipoTurno)}</td><td>${esc(r.ambito)}</td><td>${esc(r.expoValor)} ${esc(r.expoUnidad)}</td></tr></table>`;
+}
+const NOTA_ENTORNO = '<div class="note">Los resultados de <b>Taller</b> y <b>Faena</b> se presentan por separado. Una brecha identificada en un entorno no debe extrapolarse automáticamente al otro.</div>';
+
+function informeConsolidado() {
+  const regs = ordenados();
+  const T = calc(regs, 't'), F = calc(regs, 'f');
+  const g1 = imagenGrafico(cfgTendencia('t')), g2 = imagenGrafico(cfgTendencia('f')), g3 = imagenGrafico(cfgCriticidad());
+  const crit = hallazgos(regs, ['0']);
+
+  const sintesis = TEMAS.map(t => {
+    const bloques = ['t', 'f'].map(e => {
+      const filas = [];
+      regs.forEach(r => t.preguntas.forEach(([id]) => {
+        const x = r.resp?.[id]?.[e];
+        if (x && (x.nivel || x.cond || x.evid)) filas.push({ r, id, x });
+      }));
+      filas.sort((a, b) => (a.x.nivel === 'NV' ? 9 : a.x.nivel === '' ? 10 : +a.x.nivel) - (b.x.nivel === 'NV' ? 9 : b.x.nivel === '' ? 10 : +b.x.nivel));
+      return `<h4 class="${e}">${ENTORNOS[e]} · ${chipI(calc(regs, e, t.id).prom)}</h4>` + (filas.length
+        ? `<table><tr><th>Código</th><th>Nombre</th><th>Preg.</th><th>Nivel</th><th>Respuesta del trabajador</th><th>Condición observada</th><th>Evidencia a verificar</th></tr>
+          ${filas.map(({ r, id, x }) => `<tr><td>${esc(r.codigo)}</td><td>${esc(r.nombre)}</td><td>${id}</td><td>${chipN(x.nivel)}</td><td>${esc(r.resp[id].txt || x.ej)}</td><td>${esc(x.cond)}</td><td>${esc(x.evid)}</td></tr>`).join('')}</table>`
+        : '<p class="muted">Sin respuestas calificadas en este entorno.</p>');
+    }).join('');
+    const sinClasif = [];
+    regs.forEach(r => t.preguntas.forEach(([id]) => {
+      const o = r.resp?.[id];
+      if (o?.txt && !o.t && !o.f) sinClasif.push({ r, id, txt: o.txt });
+    }));
+    const bloqueSC = sinClasif.length
+      ? `<h4 class="muted">Respuestas sin calificar por entorno</h4><table><tr><th>Código</th><th>Nombre</th><th>Preg.</th><th>Respuesta del trabajador</th></tr>
+        ${sinClasif.map(({ r, id, txt }) => `<tr><td>${esc(r.codigo)}</td><td>${esc(r.nombre)}</td><td>${id}</td><td>${esc(txt)}</td></tr>`).join('')}</table>` : '';
+    return `<h3>${esc(t.titulo)}</h3>${bloques}${bloqueSC}`;
+  }).join('');
+
+  return `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Informe consolidado de entrevistas</title><style>${CSS_INFORME}</style></head><body>
+    <div class="bar"><button class="p" onclick="window.print()">Imprimir / Guardar como PDF</button><button onclick="descargar()">Descargar archivo</button></div>
+    <h1>Informe consolidado de entrevistas – Equipo de Mantención</h1>
+    <p class="sub">Emitido el ${ahora()} · ${regs.length} entrevista(s) individual(es)</p>
+    ${NOTA_ENTORNO}
+    <h2>1. Resumen</h2>
+    <div class="kp"><div>Entrevistados<b>${regs.length}</b></div><div>Resultado Taller<b>${fmt(T.prom)}</b>${T.prom == null ? '' : NIVEL_NOMBRE[nivelDeProm(T.prom)]}</div>
+      <div>Resultado Faena<b>${fmt(F.prom)}</b>${F.prom == null ? '' : NIVEL_NOMBRE[nivelDeProm(F.prom)]}</div><div>Brechas graves<b>${crit.length}</b>Taller ${T.cnt['0']} · Faena ${F.cnt['0']}</div></div>
+    <h2>2. Escala de evaluación</h2>${htmlEscala()}
+    <h2>3. Entrevistados</h2>
+    <table><tr><th>Código</th><th>Nombre</th><th>Cargo</th><th>Especialidad</th><th>Fecha</th><th>Ámbito habitual</th><th>Exposición en faena</th><th>Resultado Taller</th><th>Resultado Faena</th><th>Brechas graves</th></tr>
+      ${regs.map(r => { const t = calc([r], 't'), f = calc([r], 'f'); return `<tr><td><b>${esc(r.codigo)}</b></td><td>${esc(r.nombre)}</td><td>${esc(r.cargo)}</td><td>${esc(r.especialidad)}</td><td>${fFecha(r.fecha)}</td><td>${esc(r.ambito)}</td><td>${esc(r.expoValor)} ${esc(r.expoUnidad)}</td><td>${chipI(t.prom)}</td><td>${chipI(f.prom)}</td><td>${t.criticos + f.criticos}</td></tr>`; }).join('')}</table>
+    <h2>4. Evaluación de madurez por dimensión</h2>${htmlMadurez(regs)}
+    <h2>5. Tendencia de respuestas</h2>
+    ${g1 ? `<img class="g" src="${g1}"><img class="g" src="${g2}">` : '<p class="muted">Gráficos no disponibles sin conexión.</p>'}
+    <h2>6. Criticidades</h2>
+    ${g3 ? `<img class="g" src="${g3}">` : ''}
+    ${crit.length ? `<table><tr><th>Código</th><th>Nombre</th><th>Entorno</th><th>Pregunta</th><th>Condición observada</th><th>Evidencia a verificar</th></tr>
+      ${crit.map(({ r, p, e, x }) => `<tr><td>${esc(r.codigo)}</td><td>${esc(r.nombre)}</td><td>${ENTORNOS[e]}</td><td><b>${p.id}.</b> ${esc(p.texto)}</td><td>${esc(x.cond)}</td><td>${esc(x.evid)}</td></tr>`).join('')}</table>`
+      : '<p class="muted">Sin brechas graves registradas.</p>'}
+    <h2>7. Síntesis por tema</h2>${sintesis}
+    ${SCRIPT_DESCARGA('Informe_consolidado')}
+  </body></html>`;
+}
+
+function informeIndividual(r) {
+  const preguntas = TEMAS.map(t => `<h3>${esc(t.titulo)}</h3>
+    <table><tr><th style="width:26%">Pregunta</th><th style="width:28%">Respuesta del trabajador</th><th>Entorno</th><th>Nivel</th><th>Condición observada</th><th>Evidencia a verificar</th></tr>
+    ${t.preguntas.map(([id, texto]) => {
+      const o = r.resp?.[id] || {};
+      const resp = o.txt ? esc(o.txt) : '<span class="muted">Sin respuesta</span>';
+      const envs = ['t', 'f'].filter(e => o[e]);
+      if (!envs.length) return `<tr><td><b>${id}.</b> ${esc(texto)}</td><td>${resp}</td><td colspan="4" class="muted">Sin calificar</td></tr>`;
+      return envs.map((e, i) => `<tr>${i === 0 ? `<td rowspan="${envs.length}"><b>${id}.</b> ${esc(texto)}</td><td rowspan="${envs.length}">${resp}</td>` : ''}<td class="${e}"><b>${ENTORNOS[e]}</b></td><td>${chipN(o[e].nivel)}</td><td>${esc(o[e].cond)}</td><td>${esc(o[e].evid)}</td></tr>`).join('');
+    }).join('')}</table>`).join('');
+  const fotos = ['AST', 'HCR', 'OTROS'].map(k => `<h3>${k}</h3>` + ((r.fotos?.[k] || []).length
+    ? `<div class="fotos">${r.fotos[k].map(f => `<img src="${f.data}" alt="${esc(f.name)}">`).join('')}</div>` : '<p class="muted">Sin fotografías.</p>')).join('');
+  return `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Entrevista ${esc(r.codigo)}</title><style>${CSS_INFORME}</style></head><body>
+    <div class="bar"><button class="p" onclick="window.print()">Imprimir / Guardar como PDF</button><button onclick="descargar()">Descargar archivo</button></div>
+    <h1>Informe de entrevista individual</h1>
+    <p class="sub">Código: <b>${esc(r.codigo)}</b> · Nombre: <b>${esc(r.nombre)}</b> · Emitido el ${ahora()}</p>
+    ${NOTA_ENTORNO}
+    <h2>1. Datos del trabajador</h2>${datosTrabajador(r)}
+    <h2>2. Evaluación de madurez por dimensión</h2>${htmlMadurez([r])}
+    <h2>3. Respuestas</h2>${preguntas}
+    <h2>4. Evidencias fotográficas</h2>${fotos}
+    ${SCRIPT_DESCARGA('Entrevista_' + (r.codigo || '').replace(/[^\w-]+/g, '_'))}
+  </body></html>`;
+}
+function SCRIPT_DESCARGA(nombre) {
+  return `<script>function descargar(){var h='<!DOCTYPE html>'+document.documentElement.outerHTML;var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([h],{type:'text/html'}));a.download='${nombre}_${hoyISO()}.html';document.body.appendChild(a);a.click();a.remove();}<\/script>`;
+}
+function abrirInforme(html) {
+  const w = window.open('', '_blank');
+  if (!w) { toast('El navegador bloqueó la ventana del informe. Permita ventanas emergentes.', true); return; }
+  w.document.open(); w.document.write(html); w.document.close();
+}
+$('#btnInforme').onclick = () => {
+  if (!registros.length) { toast('No hay entrevistas para el informe.', true); return; }
+  abrirInforme(informeConsolidado());
+};
+
+/* ---- Exportar CSV (Excel) ---- */
+$('#btnCSV').onclick = () => {
+  if (!registros.length) { toast('No hay entrevistas para exportar.', true); return; }
+  const q = v => '"' + String(v ?? '').replace(/"/g, '""') + '"';
+  const cab = ['Código', 'Nombre', 'Edad', 'Fecha', 'Cargo', 'Especialidad', 'Antig. empresa (años)', 'Antig. empresa (meses)', 'Antig. cargo (años)', 'Antig. cargo (meses)', 'Turno', 'Tipo de turno', 'Ámbito habitual', 'Exposición faena', 'Unidad exposición', 'Dimensión', 'N° pregunta', 'Pregunta', 'Respuesta del trabajador', 'Entorno', 'Nivel', 'Condición observada', 'Evidencia a verificar'];
+  const filas = [cab.map(q).join(';')];
+  ordenados().forEach(r => PREGS.forEach(p => {
+    const o = r.resp?.[p.id]; if (!o) return;
+    const tema = TEMAS.find(t => t.id === p.tema);
+    const base = [r.codigo, r.nombre, r.edad, fFecha(r.fecha), r.cargo, r.especialidad, r.antEmpA, r.antEmpM, r.antCarA, r.antCarM, r.turno, r.tipoTurno, r.ambito, r.expoValor, r.expoUnidad,
+      tema.titulo, p.id, p.texto, o.txt || ''];
+    const envs = ['t', 'f'].filter(e => o[e]);
+    if (!envs.length) filas.push([...base, 'Sin calificar', '', '', ''].map(q).join(';'));
+    envs.forEach(e => { const x = o[e]; filas.push([...base, ENTORNOS[e], x.nivel === 'NV' ? 'N/V' : x.nivel, x.cond, x.evid].map(q).join(';')); });
+  }));
+  descargar(`Entrevistas_${hoyISO()}.csv`, '﻿' + filas.join('\r\n'), 'text/csv;charset=utf-8');
+};
+
+/* ---- Respaldo / restauración ---- */
+$('#btnBackup').onclick = () => {
+  descargar(`Respaldo_entrevistas_${hoyISO()}.json`, JSON.stringify({ version: 1, exportado: new Date().toISOString(), registros }), 'application/json');
+  toast('Respaldo descargado');
+};
+$('#fileRestore').addEventListener('change', async e => {
+  const f = e.target.files[0]; e.target.value = ''; if (!f) return;
+  try {
+    const data = JSON.parse(await f.text());
+    const lista = Array.isArray(data) ? data : data.registros;
+    if (!Array.isArray(lista)) throw new Error('formato no válido');
+    if (!confirm(`Se importarán ${lista.length} entrevista(s). Las que tengan el mismo identificador serán reemplazadas. ¿Continuar?`)) return;
+    for (const r of lista) if (r && r.id) await DB.put(r);
+    registros = await DB.all(); renderSeguimiento(); toast('Respaldo restaurado');
+  } catch (err) { toast('No se pudo leer el respaldo: ' + err.message, true); }
+});
+
+/* ================= PESTAÑAS ================= */
+function irTab(t) {
+  $$('nav.tabs button').forEach(b => b.classList.toggle('active', b.dataset.tab === t));
+  $('#tab-form').hidden = t !== 'form';
+  $('#tab-seg').hidden = t !== 'seg';
+  if (t === 'seg') renderSeguimiento();
+}
+$$('nav.tabs button').forEach(b => b.onclick = () => irTab(b.dataset.tab));
+
+/* ================= INICIO ================= */
+(async () => {
+  await DB.init();
+  try { registros = await DB.all(); } catch { registros = []; }
+  $('#badge').textContent = registros.length;
+  limpiarForm();
+})();
+</script>
+</body>
+</html>
